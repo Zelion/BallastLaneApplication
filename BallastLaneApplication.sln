@@ -1,0 +1,57 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34018.315
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BallastLaneApplication", "BallastLaneApplication\BallastLaneApplication.csproj", "{FD0A097F-2D22-4F1F-8F30-BB7B55C77508}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01_API", "01_API", "{04693370-F39F-4591-B70F-7A53D40F514A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02_Data", "02_Data", "{B852B086-7B43-4898-A74D-DA9E71C4E6BF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03_Domain", "03_Domain", "{C6E25D3F-54CB-472F-838F-662583634ECC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04_UnitTesting", "04_UnitTesting", "{BC7E7F07-FB0C-4880-BBFB-28FCB3CF06FF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BallastLaneApplication.Data", "BallastLaneApplication.Data\BallastLaneApplication.Data.csproj", "{02911ED2-C5AB-4FC7-A701-2C31191E6943}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BallastLaneApplication.Domain", "BallastLaneApplication.Domain\BallastLaneApplication.Domain.csproj", "{AA4B8E33-16CE-4669-AAB5-613AD6FD8579}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BallastLaneAuth", "BallastLaneAuth\BallastLaneAuth.csproj", "{5A819CC5-AFA2-4BCB-8FCE-8F315FB7F2E9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FD0A097F-2D22-4F1F-8F30-BB7B55C77508}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD0A097F-2D22-4F1F-8F30-BB7B55C77508}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD0A097F-2D22-4F1F-8F30-BB7B55C77508}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD0A097F-2D22-4F1F-8F30-BB7B55C77508}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02911ED2-C5AB-4FC7-A701-2C31191E6943}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02911ED2-C5AB-4FC7-A701-2C31191E6943}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02911ED2-C5AB-4FC7-A701-2C31191E6943}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02911ED2-C5AB-4FC7-A701-2C31191E6943}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA4B8E33-16CE-4669-AAB5-613AD6FD8579}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA4B8E33-16CE-4669-AAB5-613AD6FD8579}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA4B8E33-16CE-4669-AAB5-613AD6FD8579}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA4B8E33-16CE-4669-AAB5-613AD6FD8579}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A819CC5-AFA2-4BCB-8FCE-8F315FB7F2E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A819CC5-AFA2-4BCB-8FCE-8F315FB7F2E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A819CC5-AFA2-4BCB-8FCE-8F315FB7F2E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A819CC5-AFA2-4BCB-8FCE-8F315FB7F2E9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FD0A097F-2D22-4F1F-8F30-BB7B55C77508} = {04693370-F39F-4591-B70F-7A53D40F514A}
+		{02911ED2-C5AB-4FC7-A701-2C31191E6943} = {B852B086-7B43-4898-A74D-DA9E71C4E6BF}
+		{AA4B8E33-16CE-4669-AAB5-613AD6FD8579} = {C6E25D3F-54CB-472F-838F-662583634ECC}
+		{5A819CC5-AFA2-4BCB-8FCE-8F315FB7F2E9} = {04693370-F39F-4591-B70F-7A53D40F514A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FC95D355-F8BA-4F27-A6F3-707259A62C0F}
+	EndGlobalSection
+EndGlobal
