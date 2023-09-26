@@ -1,47 +1,55 @@
 ﻿using BallastLaneApplication.Data.Repository.Interfaces;
 using BallastLaneApplication.Data.Service.Interfaces;
+using BallastLaneApplication.Domain.DTOs;
 using BallastLaneApplication.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace BallastLaneApplication.Data.Service
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository _userRepository;
-        private readonly string key;
+        private readonly IUserRepository _repository;
+        private readonly string? key;
 
         public UserService(
             IConfiguration configuration,
-            IUserRepository userRepository
+            IUserRepository repository
             )
         {
-            _userRepository = userRepository;
+            _repository = repository;
             key = configuration.GetSection("JwtKey").ToString();
         }
 
         public async Task<IEnumerable<User>> GetUsersAsync()
         {
-            return await _userRepository.GetUsersAsync();
+            return await _repository.GetUsersAsync();
         }
 
         public async Task<User> GetUserAsync(string id)
         {
-            return await _userRepository.GetUserAsync(id);
+            return await _repository.GetUserAsync(id);
         }
 
-        public async Task<User> CreateUserAsync(User user)
+        public async Task CreateUserAsync(User user)
         {
-            return await _userRepository.CreateUserAsync(user);
+            //hash password
+            user.Password = HashPasword(user.Password, out var salt);
+            user.Salt = salt;
+
+            SetDefaultValues(user);
+
+            await _repository.CreateUserAsync(user);
         }
 
         public string? Authenticate(string email, string password)
         {
-            var user = _userRepository.GetByUsernameAndPassword(email, password);
-            if (user == null)
+            var user = _repository.GetByUsernameAndPassword(email, password);
+            if (user == null || string.IsNullOrEmpty(key))
             {
                 return null;
             }
@@ -65,5 +73,39 @@ namespace BallastLaneApplication.Data.Service
 
             return tokenHandler.WriteToken(token);
         }
+
+        public bool VerifyPassword(UserDTO user)
+        {
+            var hashToCompare = Rfc2898DeriveBytes.Pbkdf2(user.Password, user.Salt, iterations, hashAlgorithm, keySize);
+            return CryptographicOperations.FixedTimeEquals(hashToCompare, Convert.FromHexString(user.HashPassword));
+        }
+
+        #region Private Methods
+
+        const int keySize = 64;
+        const int iterations = 350000;
+        HashAlgorithmName hashAlgorithm = HashAlgorithmName.SHA512;
+
+        private string HashPasword(string password, out byte[] salt)
+        {
+            salt = RandomNumberGenerator.GetBytes(keySize);
+            var hash = Rfc2898DeriveBytes.Pbkdf2(
+                Encoding.UTF8.GetBytes(password),
+                salt,
+                iterations,
+                hashAlgorithm,
+                keySize);
+            return Convert.ToHexString(hash);
+        }
+
+        private void SetDefaultValues(User user)
+        {
+            user.Created = DateTime.Now;
+            user.CreatedBy = user.Email;
+            user.Modified = DateTime.Now;
+            user.ModifiedBy = user.Email;
+        }
+
+        #endregion
     }
 }

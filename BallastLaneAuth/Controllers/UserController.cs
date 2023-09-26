@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BallastLaneAuth.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class UserController : ControllerBase
@@ -24,10 +25,29 @@ namespace BallastLaneAuth.Controllers
         }
 
         [AllowAnonymous]
+        [HttpPost]
+        public async Task<ActionResult<User>> Create(UserDTO dto)
+        {
+            if (dto == null)
+            {
+                return BadRequest();
+            }
+
+            var user = _mapper.Map<User>(dto);
+            await _service.CreateUserAsync(user);
+
+            return Ok(dto);
+        }
+
+        [AllowAnonymous]
         [Route("authenticate")]
         [HttpPost]
         public ActionResult Login([FromBody] UserDTO dto)
         {
+            var verifiedPassword = _service.VerifyPassword(dto);
+            if (!verifiedPassword)
+                return BadRequest();
+
             var token = _service.Authenticate(dto.Email, dto.Password);
             if (token == null)
             {
@@ -54,22 +74,6 @@ namespace BallastLaneAuth.Controllers
             var dto = _mapper.Map<UserDTO>(user);
 
             return Ok(dto);
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<User>> Create(UserDTO dto)
-        {
-            if (dto == null)
-            {
-                return BadRequest();
-            }
-
-            // add validation
-
-            var user = _mapper.Map<User>(dto);
-            await _service.CreateUserAsync(user);
-
-            return Ok(user);
         }
     }
 }

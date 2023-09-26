@@ -16,8 +16,7 @@ namespace BallastLaneApplication.Data.Context
             var database = client.GetDatabase(databaseName.Value);
 
             Products = database.GetCollection<Product>(collectionName.Value);
-
-            ProductContextSeed.SeedData(Products);
+            Users = database.GetCollection<User>(collectionName.Value);
         }
 
         public IMongoCollection<Product> Products { get; }

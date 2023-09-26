@@ -1,6 +1,8 @@
 using BallastLaneApplication.Data.Context;
 using BallastLaneApplication.Data.Repository;
 using BallastLaneApplication.Data.Repository.Interfaces;
+using BallastLaneApplication.Data.Service;
+using BallastLaneApplication.Data.Service.Interfaces;
 using BallastLaneApplication.Mapping;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAutoMapper(typeof(MapperConfig));
 
 builder.Services.AddTransient<IProductContext, ProductContext>();
+builder.Services.AddTransient<IProductService, ProductService>();
 builder.Services.AddTransient<IProductRepository, ProductRepository>();
 
 builder.Services.AddControllers();

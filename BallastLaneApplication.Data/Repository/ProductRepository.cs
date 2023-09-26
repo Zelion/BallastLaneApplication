@@ -14,14 +14,35 @@ namespace BallastLaneApplication.Data.Repository
             _productContext = productContext ?? throw new ArgumentNullException(nameof(productContext));
         }
 
-        public async Task<Product> GetProductByIdAsync(string id)
+        public async Task<IEnumerable<Product>> GetProductsAsync(string userId)
         {
-            return await _productContext.Products.Find(p => p.Id == id).FirstOrDefaultAsync();
+            return await _productContext.Products.Find(x => x.UserId.Equals(userId)).ToListAsync();
         }
 
-        public async Task<IEnumerable<Product>> GetProductsAsync()
+        public async Task<Product> GetProductAsync(string id, string userId)
         {
-            return await _productContext.Products.Find(x => true).ToListAsync();
+            return await _productContext.Products.Find(x => x.Id.Equals(id) && x.UserId.Equals(userId)).FirstOrDefaultAsync();
+        }
+
+        public async Task AddProductAsync(Product product)
+        {
+            await _productContext.Products.InsertOneAsync(product);
+        }
+
+        public async Task<bool> UpdateProductAsync(Product product)
+        {
+            var replaceAsync = await _productContext.Products.ReplaceOneAsync(filter: x => x.Id.Equals(product.Id), product);
+
+            return replaceAsync.IsAcknowledged && replaceAsync.ModifiedCount > 0;
+        }
+
+        public async Task<bool> DeleteProductAsync(string id, string userId)
+        {
+            var filter = Builders<Product>.Filter.Where(x => x.Id.Equals(id) && x.UserId.Equals(userId));
+
+            var deleteResult = await _productContext.Products.DeleteOneAsync(filter);
+
+            return deleteResult.IsAcknowledged && deleteResult.DeletedCount > 0;
         }
     }
 }
