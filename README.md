@@ -1,4 +1,4 @@
-# Steps:
+## Steps:
 - Execute 'docker-compose up -d' on the Solution path to generate Images and Containers on Docker
 - Consume CreateAsync in the UserController (this will create a user in the Users Collection in MongoDB)
 - Consume Login in the UserController (this will return a JWT token)
