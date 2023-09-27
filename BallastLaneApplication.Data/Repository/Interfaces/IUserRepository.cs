@@ -6,7 +6,8 @@ namespace BallastLaneApplication.Data.Repository.Interfaces
     {
         Task<IEnumerable<User>> GetUsersAsync();
         Task<User> GetUserAsync(string id);
-        Task<User> GetByUsernameAndPassword(string username, string password);
+        Task<User> GetByEmailAsync(string email);
+        Task<User> GetByEmailAndPasswordAsync(string username, string password);
         Task CreateUserAsync(User user);
     }
 }

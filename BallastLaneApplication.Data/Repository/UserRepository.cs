@@ -21,12 +21,17 @@ namespace BallastLaneApplication.Data.Repository
 
         public async Task<User> GetUserAsync(string id)
         {
-            return await _productContext.Users.Find(x => x.Id == id).FirstOrDefaultAsync();
+            return await _productContext.Users.Find(x => x.Id.Equals(id)).FirstOrDefaultAsync();
         }
 
-        public async Task<User> GetByUsernameAndPassword(string email, string password)
+        public async Task<User> GetByEmailAsync(string email)
         {
-            return await _productContext.Users.Find(x => x.Email == email && x.Password == password).FirstOrDefaultAsync();
+            return await _productContext.Users.Find(x => x.Email.Equals(email)).FirstOrDefaultAsync();
+        }
+
+        public async Task<User> GetByEmailAndPasswordAsync(string email, string password)
+        {
+            return await _productContext.Users.Find(x => x.Email.Equals(email) && x.Password.Equals(password)).FirstOrDefaultAsync();
         }
 
         public async Task CreateUserAsync(User user)

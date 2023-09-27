@@ -2,6 +2,7 @@
 using BallastLaneApplication.Data.Service.Interfaces;
 using BallastLaneApplication.Domain.DTOs;
 using BallastLaneApplication.Domain.Entities;
+using BallastLaneApplication.Domain.Enums;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -21,7 +22,7 @@ namespace BallastLaneApplication.Data.Service
             IUserRepository repository
             )
         {
-            _repository = repository;
+            _repository = repository ?? throw new ArgumentNullException(nameof(_repository));
             key = configuration.GetSection("JwtKey").ToString();
         }
 
@@ -30,25 +31,54 @@ namespace BallastLaneApplication.Data.Service
             return await _repository.GetUsersAsync();
         }
 
-        public async Task<User> GetUserAsync(string id)
+        public async Task<User?> GetUserAsync(string id)
         {
-            return await _repository.GetUserAsync(id);
+            try
+            {
+                return await _repository.GetUserAsync(id);
+            }
+            catch (FormatException)
+            {
+                return null;
+            }
         }
 
-        public async Task CreateUserAsync(User user)
+        public async Task<User> GetByEmailAsync(string email)
         {
-            //hash password
-            user.Password = HashPasword(user.Password, out var salt);
-            user.Salt = salt;
+            return await _repository.GetByEmailAsync(email);
+        }
 
-            SetDefaultValues(user);
+        public async Task<UserCreationResults> CreateUserAsync(User user)
+        {
+            try
+            {
 
-            await _repository.CreateUserAsync(user);
+                var existingUser = await _repository.GetByEmailAsync(user.Email);
+                if (existingUser != null)
+                {
+                    return UserCreationResults.EmailAlreadyTaken;
+                }
+
+                //hash password
+                user.Password = HashPasword(user.Password, out var salt);
+                user.Salt = salt;
+
+                SetDefaultValues(user);
+
+                await _repository.CreateUserAsync(user);
+
+                return UserCreationResults.Succeed;
+            }
+            catch (Exception)
+            {
+                //TODO: LOG
+                return UserCreationResults.Failed;
+            }
         }
 
         public string? Authenticate(string email, string password)
         {
-            var user = _repository.GetByUsernameAndPassword(email, password);
+            var user = _repository.GetByEmailAndPasswordAsync(email, password);
             if (user == null || string.IsNullOrEmpty(key))
             {
                 return null;

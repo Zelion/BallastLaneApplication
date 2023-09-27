@@ -4,7 +4,7 @@ using BallastLaneApplication.Domain.DTOs;
 using BallastLaneApplication.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using System.Net;
 
 namespace BallastLaneApplication.Controllers
 {
@@ -15,62 +15,111 @@ namespace BallastLaneApplication.Controllers
     {
         private readonly IMapper _mapper;
         private readonly IProductService _service;
-        private readonly string userId;
 
         public ProductController(
             IMapper mapper,
             IProductService service
             )
         {
-            _mapper = mapper;
-            _service = service;
-
-            userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(_mapper));
+            _service = service ?? throw new ArgumentNullException(nameof(_service));
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        [ProducesResponseType(typeof(IEnumerable<ProductDTO>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
+        public async Task<ActionResult> GetAllAsync()
         {
-            var products = await _service.GetProductsAsync(userId);
+            var email = User.Claims.First().Value;
+
+            var products = await _service.GetAllAsync(email);
             var dtos = _mapper.Map<IEnumerable<ProductDTO>>(products);
 
             return Ok(dtos);
         }
 
+        [HttpGet]
+        [Route("{id}")]
+        [ProducesResponseType(typeof(ProductDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<ActionResult> GetAsync(string id)
+        {
+            var email = User.Claims.First().Value;
+
+            var product = await _service.GetAsync(id, email);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            var dto = _mapper.Map<ProductDTO>(product);
+
+            return Ok(dto);
+        }
+
         [HttpPost]
-        public async Task<ActionResult<User>> Create(ProductDTO dto)
+        [ProducesResponseType(typeof(ProductDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> AddAsync(ProductDTO dto)
         {
             if (dto == null)
             {
                 return BadRequest();
             }
 
+            var email = User.Claims.First().Value;
+
             var product = _mapper.Map<Product>(dto);
-            await _service.AddProduct(product);
+            await _service.AddAsync(product, email);
 
             return Ok(dto);
         }
 
         [HttpPut]
-        public async Task<ActionResult> Update(ProductDTO dto)
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> UpdateAsync(ProductDTO dto)
         {
             if (dto == null)
             {
                 return BadRequest();
             }
 
-            return Ok(await _service.UpdateProductAsync(dto, userId));
+            var email = User.Claims.First().Value;
+            var updated = await _service.UpdateAsync(dto, email);
+            if (updated)
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest("Record was not updated");
+            }
         }
 
         [HttpDelete]
-        public async Task<ActionResult> Delete(string id)
+        [Route("{id}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<ActionResult> DeleteAsync(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
                 return BadRequest();
             }
 
-            return Ok(await _service.DeleteProductAsync(id, userId));
+            var email = User.Claims.First().Value;
+
+            var deleted = await _service.DeleteAsync(id, email);
+            if (deleted)
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest("Record was not deleted");
+            }
         }
     }
 }

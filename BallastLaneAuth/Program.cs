@@ -13,9 +13,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddAutoMapper(typeof(MapperConfig));
 
+// Context
 builder.Services.AddTransient<IProductContext, ProductContext>();
-builder.Services.AddTransient<IUserRepository, UserRepository>();
+
+// Services
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IProductService, ProductService>();
+
+// Repositories
+builder.Services.AddTransient<IUserRepository, UserRepository>();
+builder.Services.AddTransient<IProductRepository, ProductRepository>();
 
 builder.Services.AddControllers();
 

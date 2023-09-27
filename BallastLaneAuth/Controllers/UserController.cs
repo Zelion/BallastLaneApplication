@@ -2,8 +2,10 @@
 using BallastLaneApplication.Data.Service.Interfaces;
 using BallastLaneApplication.Domain.DTOs;
 using BallastLaneApplication.Domain.Entities;
+using BallastLaneApplication.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace BallastLaneAuth.Controllers
 {
@@ -20,13 +22,15 @@ namespace BallastLaneAuth.Controllers
             IMapper mapper
             )
         {
-            _service = service;
-            _mapper = mapper;
+            _service = service ?? throw new ArgumentNullException(nameof(_service));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(_mapper));
         }
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<ActionResult<User>> Create(UserDTO dto)
+        [ProducesResponseType(typeof(UserDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> CreateAsync(UserDTO dto)
         {
             if (dto == null)
             {
@@ -34,7 +38,11 @@ namespace BallastLaneAuth.Controllers
             }
 
             var user = _mapper.Map<User>(dto);
-            await _service.CreateUserAsync(user);
+            var userCreationResult = await _service.CreateUserAsync(user);
+            if (userCreationResult == UserCreationResults.EmailAlreadyTaken)
+            {
+                return BadRequest("Email already taken");
+            }
 
             return Ok(dto);
         }
@@ -42,6 +50,9 @@ namespace BallastLaneAuth.Controllers
         [AllowAnonymous]
         [Route("authenticate")]
         [HttpPost]
+        [ProducesResponseType(typeof(UserDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.Unauthorized)]
         public ActionResult Login([FromBody] UserDTO dto)
         {
             var verifiedPassword = _service.VerifyPassword(dto);
@@ -58,9 +69,16 @@ namespace BallastLaneAuth.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        [ProducesResponseType(typeof(IEnumerable<UserDTO>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> GetAsync()
         {
             var users = await _service.GetUsersAsync();
+            if (!users.Any())
+            {
+                return NotFound();
+            }
+
             var dtos = _mapper.Map<IEnumerable<UserDTO>>(users);
 
             return Ok(dtos);
@@ -68,9 +86,16 @@ namespace BallastLaneAuth.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<ActionResult<User>> GetUser(string id)
+        [ProducesResponseType(typeof(UserDTO), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> GetUserAsync(string id)
         {
             var user = await _service.GetUserAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
             var dto = _mapper.Map<UserDTO>(user);
 
             return Ok(dto);

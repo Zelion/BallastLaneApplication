@@ -10,13 +10,12 @@ namespace BallastLaneApplication.Data.Context
         {
             var connectionString = configuration.GetSection("DabaseSettings:ConnectionString");
             var databaseName = configuration.GetSection("DabaseSettings:DatabaseName");
-            var collectionName = configuration.GetSection("DabaseSettings:CollectionName");
 
             var client = new MongoClient(connectionString.Value);
             var database = client.GetDatabase(databaseName.Value);
 
-            Products = database.GetCollection<Product>(collectionName.Value);
-            Users = database.GetCollection<User>(collectionName.Value);
+            Products = database.GetCollection<Product>("Products");
+            Users = database.GetCollection<User>("Users");
         }
 
         public IMongoCollection<Product> Products { get; }
