@@ -1,0 +1,17 @@
+version: '3.4'
+
+services:
+  ballastdb:
+    image: mongo
+  ballastlaneapplication:
+    image: ${DOCKER_REGISTRY-}ballastlaneapplication
+    build:
+      context: .
+      dockerfile: BallastLaneApplication/Dockerfile
+  ballastlaneauth:
+    image: ${DOCKER_REGISTRY-}ballastlaneauth
+    build:
+      context: .
+      dockerfile: BallastLaneAuth/Dockerfile
+volumes:
+    mongo_data:

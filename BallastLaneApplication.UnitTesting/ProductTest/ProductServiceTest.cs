@@ -5,14 +5,14 @@ using BallastLaneApplication.Data.Service.Interfaces;
 using BallastLaneApplication.Domain.Entities;
 using Moq;
 
-namespace BallastLaneApplication.UnitTesting
+namespace BallastLaneApplication.UnitTesting.ProductTest
 {
     public class ProductServiceTest
     {
         private Fixture _fixture;
         private readonly IProductService _productService;
-        private Mock<IProductRepository> _mockProductRepository;
-        private Mock<IUserService> _mockUserService;
+        private readonly Mock<IProductRepository> _mockProductRepository;
+        private readonly Mock<IUserService> _mockUserService;
 
         public ProductServiceTest()
         {
@@ -72,11 +72,12 @@ namespace BallastLaneApplication.UnitTesting
             Assert.Equal(productFixture.Name, product.Name);
         }
 
-        [Fact]
-        public async Task GetProductAsync_InvalidId_ThrowsException()
+        [Theory]
+        [InlineData("testProductId", "test@email.com")]
+        public async Task GetProductAsync_InvalidId_ThrowsException(string productId, string email)
         {
             // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _productService.GetAsync("asdasdasasd", "test@email.com"));
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => _productService.GetAsync(productId, email));
         }
     }
 }

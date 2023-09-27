@@ -14,15 +14,18 @@ namespace BallastLaneApplication.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IMapper _mapper;
+        private readonly ILogger<ProductController> _logger;
         private readonly IProductService _service;
 
         public ProductController(
             IMapper mapper,
+            ILogger<ProductController> logger,
             IProductService service
             )
         {
             _mapper = mapper ?? throw new ArgumentNullException(nameof(_mapper));
             _service = service ?? throw new ArgumentNullException(nameof(_service));
+            _logger = logger ?? throw new ArgumentNullException(nameof(_logger));
         }
 
         [HttpGet]
@@ -50,6 +53,7 @@ namespace BallastLaneApplication.Controllers
             var product = await _service.GetAsync(id, email);
             if (product == null)
             {
+                _logger.LogError($"Product not found");
                 return NotFound();
             }
 
@@ -65,6 +69,7 @@ namespace BallastLaneApplication.Controllers
         {
             if (dto == null)
             {
+                _logger.LogError($"ProductDTO is null");
                 return BadRequest();
             }
 
@@ -83,6 +88,7 @@ namespace BallastLaneApplication.Controllers
         {
             if (dto == null)
             {
+                _logger.LogError($"ProductDTO is null");
                 return BadRequest();
             }
 
@@ -94,6 +100,7 @@ namespace BallastLaneApplication.Controllers
             }
             else
             {
+                _logger.LogError($"Product record was not updated");
                 return BadRequest("Record was not updated");
             }
         }
@@ -118,6 +125,7 @@ namespace BallastLaneApplication.Controllers
             }
             else
             {
+                _logger.LogError($"Product record was not deleted");
                 return BadRequest("Record was not deleted");
             }
         }

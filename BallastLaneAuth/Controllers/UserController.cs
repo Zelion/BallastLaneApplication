@@ -16,14 +16,17 @@ namespace BallastLaneAuth.Controllers
     {
         private readonly IUserService _service;
         private readonly IMapper _mapper;
+        private readonly ILogger<UserController> _logger;
 
         public UserController(
             IUserService service,
-            IMapper mapper
+            IMapper mapper,
+            ILogger<UserController> logger
             )
         {
             _service = service ?? throw new ArgumentNullException(nameof(_service));
             _mapper = mapper ?? throw new ArgumentNullException(nameof(_mapper));
+            _logger = logger ?? throw new ArgumentNullException(nameof(_logger));
         }
 
         [AllowAnonymous]
@@ -34,6 +37,7 @@ namespace BallastLaneAuth.Controllers
         {
             if (dto == null)
             {
+                _logger.LogError($"The UserDTO is null");
                 return BadRequest();
             }
 
@@ -41,6 +45,7 @@ namespace BallastLaneAuth.Controllers
             var userCreationResult = await _service.CreateUserAsync(user);
             if (userCreationResult == UserCreationResults.EmailAlreadyTaken)
             {
+                _logger.LogError("Email already taken");
                 return BadRequest("Email already taken");
             }
 
@@ -57,11 +62,15 @@ namespace BallastLaneAuth.Controllers
         {
             var verifiedPassword = _service.VerifyPassword(dto);
             if (!verifiedPassword)
+            {
+                _logger.LogError("Incorrect Password");
                 return BadRequest();
+            }
 
             var token = _service.Authenticate(dto.Email, dto.Password);
             if (token == null)
             {
+                _logger.LogError("Unauthorized token");
                 return Unauthorized();
             }
 
@@ -76,6 +85,7 @@ namespace BallastLaneAuth.Controllers
             var users = await _service.GetUsersAsync();
             if (!users.Any())
             {
+                _logger.LogError("Users list empty");
                 return NotFound();
             }
 
@@ -93,6 +103,7 @@ namespace BallastLaneAuth.Controllers
             var user = await _service.GetUserAsync(id);
             if (user == null)
             {
+                _logger.LogError("User not found");
                 return NotFound();
             }
 

@@ -52,7 +52,6 @@ namespace BallastLaneApplication.Data.Service
         {
             try
             {
-
                 var existingUser = await _repository.GetByEmailAsync(user.Email);
                 if (existingUser != null)
                 {
